@@ -1,9 +1,11 @@
 """
-    Version : 1.1.0
-    Ligue : Bronze
+    Version : 1.2.0
+    Ligue : Argent
     Tactique :
         Les deux premiers héros se partagent les 90° de la base tout en se soutenant le cas échéant.
         Le troisième contrôle le flux de monstres (CONTROL et WIND) en soutient des 2 premiers.
+    MaJ Tactique :
+        Le troisième "SHIELD" les monstres quand il en a l'occassion.
 """
 
 # To debug: print("Debug messages...", file=sys.stderr, flush=True)
@@ -24,13 +26,7 @@ class Const:
 
     ATTACK_MY_BASE = 1
     ATTACK_OPP_BASE = 2
-
-    INITIAL_POSITION = [
-        "4700 1900",
-        "1900 4700",
-        "3500 3500",
-    ]
-
+    
 class IO:
     # Initial Turn
     def __init__(self):
@@ -116,6 +112,12 @@ class ReactAgent:
                     if game.get_base_distance(io.my_base, i)<dist and game.monsters[i].target!=Const.ATTACK_OPP_BASE and self.p1.mana>20 and game.get_monster_distance(idx, i)<1280:
                         dist = game.get_base_distance(io.my_base, i)
                         best_action = self.wind(str(io.opp_base))
+                        
+            if best_action == "WAIT WAIT":
+                for i in range(len(game.monsters)):
+                    if game.monsters[i].target==Const.ATTACK_OPP_BASE and self.p1.mana>30 and game.get_monster_distance(idx, i)<2200:
+                        dist = game.get_base_distance(io.my_base, i)
+                        best_action = self.shield(str(game.monsters[i].id))
             
             if best_action == "WAIT WAIT":
                 for i in range(len(game.monsters)):
@@ -136,6 +138,9 @@ class ReactAgent:
 
     def control(self, id, destination):
         return "SPELL CONTROL " + id + " " + destination + " CONTROL"
+
+    def shield(self, id):
+        return "SPELL SHIELD " + id + " SHIELD"
 
 class Player:
     Opponent = None
